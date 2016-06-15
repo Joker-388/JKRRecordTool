@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="6a6-av-n6C">
+                                <rect key="frame" x="39" y="90" width="542" height="510"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="aBH-0H-Jz1"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="AU2-Zb-pPT"/>
+                                </connections>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cuo-nq-0bq">
+                                <rect key="frame" x="39" y="30" width="50" height="50"/>
+                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="8qr-zg-Vag"/>
+                                    <constraint firstAttribute="width" constant="50" id="OKu-iv-S8y"/>
+                                </constraints>
+                                <state key="normal" title="start"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kTD-Ai-tFa">
+                                <rect key="frame" x="239" y="44" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VJb-Q4-IbZ">
+                                <rect key="frame" x="304" y="54" width="60" height="2"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="ZmM-XR-gzf"/>
+                                </constraints>
+                            </progressView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cRR-ti-rVl">
+                                <rect key="frame" x="164" y="30" width="50" height="50"/>
+                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="show"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sk6-0S-6Lb">
+                                <rect key="frame" x="383" y="44" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="And-We-2KU">
+                                <rect key="frame" x="97" y="30" width="50" height="50"/>
+                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="upload"/>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="cRR-ti-rVl" firstAttribute="height" secondItem="cuo-nq-0bq" secondAttribute="height" id="2Xv-Cw-blh"/>
+                            <constraint firstItem="sk6-0S-6Lb" firstAttribute="leading" secondItem="kTD-Ai-tFa" secondAttribute="trailing" constant="102" id="4h7-sE-tWB"/>
+                            <constraint firstItem="6a6-av-n6C" firstAttribute="top" secondItem="cuo-nq-0bq" secondAttribute="bottom" constant="10" id="4mI-vO-Nyr"/>
+                            <constraint firstItem="And-We-2KU" firstAttribute="width" secondItem="cuo-nq-0bq" secondAttribute="width" id="5Aw-JV-MNh"/>
+                            <constraint firstItem="kTD-Ai-tFa" firstAttribute="leading" secondItem="cRR-ti-rVl" secondAttribute="trailing" constant="25" id="8wn-VJ-uzd"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="6a6-av-n6C" secondAttribute="bottom" id="BNU-xo-aav"/>
+                            <constraint firstItem="cRR-ti-rVl" firstAttribute="leading" secondItem="And-We-2KU" secondAttribute="trailing" constant="15" id="CQC-Q8-PiS"/>
+                            <constraint firstItem="kTD-Ai-tFa" firstAttribute="centerY" secondItem="cRR-ti-rVl" secondAttribute="centerY" id="KcA-2M-YA9"/>
+                            <constraint firstItem="And-We-2KU" firstAttribute="leading" secondItem="cuo-nq-0bq" secondAttribute="trailing" constant="10" id="Om8-da-tjj"/>
+                            <constraint firstItem="And-We-2KU" firstAttribute="top" secondItem="cuo-nq-0bq" secondAttribute="top" id="S9Z-pv-lgz"/>
+                            <constraint firstItem="cRR-ti-rVl" firstAttribute="width" secondItem="cuo-nq-0bq" secondAttribute="width" id="Xpo-i4-sbQ"/>
+                            <constraint firstItem="6a6-av-n6C" firstAttribute="leading" secondItem="cuo-nq-0bq" secondAttribute="leading" id="ene-u7-1Ae"/>
+                            <constraint firstAttribute="trailing" secondItem="6a6-av-n6C" secondAttribute="trailing" constant="19" id="gLN-MV-t8n"/>
+                            <constraint firstItem="sk6-0S-6Lb" firstAttribute="centerY" secondItem="kTD-Ai-tFa" secondAttribute="centerY" id="h9Q-Df-SmR"/>
+                            <constraint firstItem="And-We-2KU" firstAttribute="height" secondItem="cuo-nq-0bq" secondAttribute="height" id="jnN-q1-LId"/>
+                            <constraint firstItem="cRR-ti-rVl" firstAttribute="top" secondItem="And-We-2KU" secondAttribute="top" id="kS9-7i-ZuR"/>
+                            <constraint firstItem="VJb-Q4-IbZ" firstAttribute="centerY" secondItem="cRR-ti-rVl" secondAttribute="centerY" id="mTS-op-cW1"/>
+                            <constraint firstItem="cuo-nq-0bq" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="vaJ-HB-dMT"/>
+                            <constraint firstItem="cuo-nq-0bq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="19" id="wa4-a6-Fl8"/>
+                            <constraint firstItem="VJb-Q4-IbZ" firstAttribute="leading" secondItem="kTD-Ai-tFa" secondAttribute="trailing" constant="23" id="yh4-80-e2G"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="allTimeLabel" destination="sk6-0S-6Lb" id="hbg-1S-8CB"/>
+                        <outlet property="showBtn" destination="cRR-ti-rVl" id="0e8-dU-qTo"/>
+                        <outlet property="startBtn" destination="cuo-nq-0bq" id="Czu-Ko-PoA"/>
+                        <outlet property="tableView" destination="6a6-av-n6C" id="iYK-ZK-Uiv"/>
+                        <outlet property="timeLabel" destination="kTD-Ai-tFa" id="gMp-QP-LQY"/>
+                        <outlet property="uploadBtn" destination="And-We-2KU" id="I7i-at-pxa"/>
+                        <outlet property="voiceLabel" destination="VJb-Q4-IbZ" id="XAt-Qk-7SY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="306" y="359"/>
+        </scene>
+    </scenes>
+</document>

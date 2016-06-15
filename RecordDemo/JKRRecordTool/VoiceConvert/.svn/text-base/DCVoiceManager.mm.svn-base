@@ -1,0 +1,276 @@
+//
+//  DCVoiceManager.m
+//  dogchain
+//
+//  Created by EricLau on 16/5/29.
+//  Copyright © 2016年 tronsis. All rights reserved.
+//
+
+#import "DCVoiceManager.h"
+#import "HttpManager.h"
+#import "wav.h"
+#import "interf_dec.h"
+#import "dec_if.h"
+#import "interf_enc.h"
+#import "amrFileCodec.h"
+
+@interface DCVoiceManager ()<AVAudioPlayerDelegate, AVAudioRecorderDelegate, AVAudioSessionDelegate>
+
+@property (nonatomic, strong)NSTimer *timer;
+@property (nonatomic,retain) NSURLConnection* aSynConnection;
+@property (nonatomic,retain) NSInputStream *inputStreamForFile;
+@property (nonatomic,retain) NSString *localFilePath;
+@property (nonatomic,strong) NSFileManager *manager;
+@end
+
+@implementation DCVoiceManager{
+    NSString *fileName_;
+    CGFloat accumulatedTime;
+}
+-(NSFileManager *)manager{
+    if (!_manager) {
+        _manager = [NSFileManager defaultManager];
+    }
+    return _manager;
+}
++(instancetype)manager{
+    static DCVoiceManager *manager;
+    manager = [[DCVoiceManager alloc]init];
+    [manager setAudioSession];
+    return manager;
+}
+
+-(void)recordVoiceWithFileName:(NSString *)name{//录音
+    if ([self.audioRecorder isRecording]) {
+        [self.audioRecorder stop];
+    }
+    fileName_ = name;
+    accumulatedTime = 0;
+    
+    [self.audioRecorder record];
+    self.timer.fireDate = [NSDate distantPast];
+}
+-(void)playVoiceWithFileName:(NSString *)name{//播放
+    fileName_ = name;
+    if ([self.audioPlayer isPlaying]) {
+        [self.audioPlayer stop];
+    }
+    
+    [[AVAudioSession sharedInstance] setCategory:@"" error:nil];
+    
+    [self.audioPlayer play];
+}
+
+-(void)stopRecording{//停止录音
+    [self.audioRecorder stop];
+    self.timer.fireDate = [NSDate distantFuture];
+}
+-(void)stopPlaying{//停止播放
+    [self.audioPlayer stop];
+}
+-(NSArray *)getRecordedVoices{//获得沙盒内音频文件
+    NSError *error;
+    NSArray *tmpArr = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[self getSaveDirectoryPath] includingPropertiesForKeys:@[NSURLNameKey] options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];//里面装的是 nsurl 对象
+    
+    if (error) {
+        DLog(@"%@",error.localizedDescription);
+        return nil;
+    }
+    NSMutableArray *mArr = [NSMutableArray new];
+    [tmpArr enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [mArr addObject:[[obj lastPathComponent] stringByDeletingPathExtension]];//只保留文件名，不需要后缀
+    }];
+    
+    return mArr;
+}
+
+#pragma mark - private method
+#pragma mark -- recorder
+-(NSURL *)getSaveFilePath{//音频文件路径
+    NSURL *directoryUrl = [self getSaveDirectoryPath];
+    NSString *urlStr = [directoryUrl absoluteString];
+    if (!fileName_) {
+        return nil;
+    }
+    NSString *formatFiledName = [NSString stringWithFormat:@"%@.wav",fileName_];
+    urlStr=[urlStr stringByAppendingPathComponent:formatFiledName];
+    NSLog(@"file path:%@",urlStr);
+    NSURL *url=[NSURL fileURLWithPath:urlStr isDirectory:NO];
+    return url;
+}
+-(NSURL *)getSaveDirectoryPath{//音频文件夹路径
+    NSString *urlStr=[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    urlStr = [urlStr stringByAppendingPathComponent:@"DCVoiceManager"];
+    
+    NSError *error;
+    
+    BOOL isCreated = [[NSFileManager defaultManager] createDirectoryAtPath:urlStr withIntermediateDirectories:YES attributes:nil error:&error];
+    if (!isCreated) {
+        DLog(@"%@",error.localizedDescription);
+    }
+    return [NSURL URLWithString:urlStr];
+}
+-(void)setAudioSession{
+    AVAudioSession *audioSession=[AVAudioSession sharedInstance];
+    //设置为播放和录音状态，以便可以在录制完之后播放录音
+    NSError *error;
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:&error];
+    if (error) {
+        DLog(@"%@",error.localizedDescription);
+    }
+    [audioSession setActive:YES error:nil];
+}
+-(NSDictionary *)getAudioSetting{//获得音频频率相关设置
+    return [VoiceConverter GetAudioRecorderSettingDict];
+}
+
+-(void)uploadVoiceFile:(NSString *)name{//上传音频
+    NSString *tmp = NSTemporaryDirectory();
+    NSString *filePath = [tmp stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr",name]];
+    NSLog(@"%@",filePath);
+    // 初始化本地文件路径,并与NSInputStream链接
+    self.localFilePath=filePath;
+    //    self.inputStreamForFile = [NSInputStream inputStreamWithFileAtPath:self.localFilePath];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    
+    NSString *filStr = [[NSString alloc]initWithData:data encoding:NSASCIIStringEncoding];
+    
+    // 上传大小
+    NSNumber *contentLength;
+    contentLength = (NSNumber *) [[[NSFileManager defaultManager] attributesOfItemAtPath:self.localFilePath error:NULL] objectForKey:NSFileSize];
+    
+    NSMutableDictionary *parameter = [NSMutableDictionary dictionary];
+    parameter[@"token"] = [[UserManager sharedManager] userToken];
+    parameter[@"deviceId"] = @"123456789200000";
+    parameter[@"binLength"] = contentLength;
+    parameter[@"bin"] = filStr;
+    
+    [HttpManager postWithUrl:URL_32_upload_voice parameter:parameter success:^(id responseObject) {
+        [SVProgressHUD showSuccessWithStatus:@"Upload Successful"];
+    } failure:^(id error) {
+        DLog(@"%@",error);
+        [SVProgressHUD showErrorWithStatus:@"Upload failed"];
+    }];
+    
+}
+
+
+-(BOOL)isRecording{//正在录音？真机和模拟器状态不同。
+    return [self.audioRecorder isRecording];
+}
+-(BOOL)isPlaying{//正在播放？真机和模拟器状态不同。
+    return [self.audioPlayer isPlaying];
+}
+#pragma mark -- player
+
+#pragma mark - lazyLoad
+-(AVAudioRecorder *)audioRecorder{
+    if (!_audioRecorder) {
+        NSURL *saveUrl  = [self getSaveFilePath];
+        if (!saveUrl) {
+            return nil;
+        }
+        NSDictionary *settings = [self getAudioSetting];
+        NSError *error;
+        _audioRecorder = [[AVAudioRecorder alloc]initWithURL:saveUrl settings:settings error:&error];
+        _audioRecorder.delegate = self;
+        if (error) {
+            DLog(@"wrong init for audioRecorder");
+            return nil;
+        }
+        [_audioRecorder prepareToRecord];
+    }
+    return _audioRecorder;
+}
+-(AVAudioPlayer *)audioPlayer{
+    if (!_audioPlayer) {
+        NSError *error;
+        NSURL *url = [self getSaveFilePath];
+        _audioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:&error];
+        _audioPlayer.numberOfLoops = 0;
+        [_audioPlayer prepareToPlay];
+    }
+    return _audioPlayer;
+}
+-(NSTimer *)timer{
+    if (!_timer) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:0.01f target:self selector:@selector(recordingTimeChange) userInfo:nil repeats:YES];
+        [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
+    }
+    return _timer;
+}
+-(void)deleteVoiceFile:(NSString *)fileName{
+    NSString *filePath = [VoicePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav",fileName]];
+    [self.manager removeItemAtPath:filePath error:nil];
+}
+
+#pragma mark - NSTimer Method
+-(void)recordingTimeChange{
+    accumulatedTime+=0.01f;
+    
+    NSInteger tempHour = accumulatedTime / 3600;
+    NSInteger tempMinute = accumulatedTime / 60 - (tempHour * 60);
+    NSInteger tempSecond = accumulatedTime - (tempHour * 3600 + tempMinute * 60);
+    NSInteger tempMSecond = ((NSInteger)(accumulatedTime * 100)) % 99;
+    ;
+    
+    //    NSString *hour = [[NSNumber numberWithInteger:tempHour] stringValue];
+    NSString *minute = [[NSNumber numberWithInteger:tempMinute] stringValue];
+    NSString *second = [[NSNumber numberWithInteger:tempSecond] stringValue];
+    NSString *msecond = [[NSNumber numberWithInteger:tempMSecond] stringValue];
+    
+    //    DLog(@"%@",msecond);
+    //    if (tempHour < 10) {
+    //        hour = [@"0" stringByAppendingString:hour];
+    //    }
+    if (tempMinute < 10) {
+        minute = [@"0" stringByAppendingString:minute];
+    }
+    if (tempSecond < 10) {
+        second = [@"0" stringByAppendingString:second];
+    }
+    if (tempMSecond < 10) {
+        msecond = [@"0" stringByAppendingString:msecond];
+    }
+    //    self.timeLabel.text = [NSString stringWithFormat:@"%@:%@:%@:%@", hour,minute, second, msecond];
+    NSString *timeStr = [NSString stringWithFormat:@"%@:%@:%@", minute, second, msecond];
+    self.blockTime(timeStr);
+}
+
+-(void)renameVoiceFromName:(NSString *)oldName toName:(NSString *)newName{
+    
+    NSString *filePath = [VoicePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav",oldName]];
+    NSString *newPath = [VoicePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav",newName]];
+    [self.manager moveItemAtPath:filePath toPath:newPath error:nil];
+    
+}
+
+- (void)dealloc{
+    [self.timer invalidate];
+}
+/**转换成wav格式*/
++ (int)amrToWav:(NSString*)_amrPath wavSavePath:(NSString*)_savePath{
+    
+    
+    if (! DecodeAMRFileToWAVEFile([_amrPath cStringUsingEncoding:NSASCIIStringEncoding], [_savePath cStringUsingEncoding:NSASCIIStringEncoding])){
+        return 0;
+    }
+    return 1;
+}
+/**转换成arm格式*/
++ (int)wavToAmr:(NSString*)name{
+    NSString *filePath = [VoicePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.wav",name]];
+    NSString *tmpPath = NSTemporaryDirectory();
+    NSString *fileName = [[filePath lastPathComponent] stringByDeletingPathExtension];
+    
+    NSString *lastPath = [tmpPath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.amr",fileName]];
+    DLog(@"%@",lastPath);
+    
+    int result = EncodeWAVEFileToAMRFile([filePath cStringUsingEncoding:NSASCIIStringEncoding], [lastPath cStringUsingEncoding:NSASCIIStringEncoding], 1, 16);
+    
+    if (result){
+        return 1;
+    }
+    return 0;
+}
+@end

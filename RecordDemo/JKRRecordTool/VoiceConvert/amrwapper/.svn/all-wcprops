@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/dogchain/!svn/ver/256/ios/dogchain/dogchain/VoiceConvert/amrwapper
+END
+wav.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/dogchain/!svn/ver/256/ios/dogchain/dogchain/VoiceConvert/amrwapper/wav.h
+END
+amrFileCodec.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/dogchain/!svn/ver/213/ios/dogchain/dogchain/VoiceConvert/amrwapper/amrFileCodec.h
+END
+wav.mm
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/dogchain/!svn/ver/256/ios/dogchain/dogchain/VoiceConvert/amrwapper/wav.mm
+END
+amrFileCodec.mm
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/dogchain/!svn/ver/213/ios/dogchain/dogchain/VoiceConvert/amrwapper/amrFileCodec.mm
+END

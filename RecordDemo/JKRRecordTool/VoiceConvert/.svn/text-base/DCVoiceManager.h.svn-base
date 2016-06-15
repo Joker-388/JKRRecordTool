@@ -1,0 +1,41 @@
+//
+//  DCVoiceManager.h
+//  dogchain
+//
+//  Created by EricLau on 16/5/29.
+//  Copyright © 2016年 tronsis. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import "VoiceConverter.h"
+
+typedef void(^recordingTimeBlock)(NSString *);
+
+@interface DCVoiceManager : NSObject
+@property (nonatomic, strong)AVAudioPlayer *audioPlayer;
+@property (nonatomic, strong)AVAudioRecorder *audioRecorder;
+@property (nonatomic, copy)recordingTimeBlock blockTime;
+
+-(void)recordVoiceWithFileName:(NSString *)name;
+-(void)playVoiceWithFileName:(NSString *)name;
+
+-(void)stopRecording;
+-(void)stopPlaying;
+
+-(BOOL)isRecording;
+-(BOOL)isPlaying;
+
+-(NSArray *)getRecordedVoices;
+
+-(void)uploadVoiceFile:(NSString *)name;
+-(void)renameVoiceFromName:(NSString *)oldName toName:(NSString *)newName;
+-(void)deleteVoiceFile:(NSString *)fileName;
+
+/**arm转换成wav*/
++ (int)amrToWav:(NSString*)_amrPath wavSavePath:(NSString*)_savePath;
+/**wav转换成arm放入tmp中*/
++ (int)wavToAmr:(NSString*)name;
+
++(instancetype)manager;
+@end
